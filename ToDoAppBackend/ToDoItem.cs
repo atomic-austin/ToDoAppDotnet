@@ -24,13 +24,6 @@ public class ToDoItemBase : IToDoItemBase
     public string Title { get; set; }
     public string Desc { get; set; }
     public ToDoItemStatus Status { get; set; }
-
-    // public ToDoItem(string title, string desc, ToDoItemStatus status)
-    // {
-    //     Title = title;
-    //     Desc = desc;
-    //     Status = status;
-    // }
 }
 
 public class ToDoItem : ITodoItem, IToDoItemBase
