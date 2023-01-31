@@ -5,12 +5,17 @@ namespace ToDoAppBackend;
 [ApiController]
 public class DeleteTodoController : ControllerBase
 {
-    private readonly FileSaver _fileSaver = new FileSaver();
+    private readonly IDataSaver _dataSaver;
+
+    public DeleteTodoController(IDataSaver dataSaver)
+    {
+        _dataSaver = dataSaver;
+    }
     
     [HttpDelete("todo/{id:int}")]
     public string Delete(int id)
     {
-        return _fileSaver.Delete(id.ToString());
+        return _dataSaver.Delete(id.ToString());
     }
 }
 

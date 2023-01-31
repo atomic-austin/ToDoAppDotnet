@@ -1,6 +1,6 @@
 
 namespace ToDoAppBackend;
-interface IDataSaver
+public interface IDataSaver
 {
     List<ToDoItem> Get(string? id);
     ToDoItem Create(ToDoItemBase toDo);

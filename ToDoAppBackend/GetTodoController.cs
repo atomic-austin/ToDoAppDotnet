@@ -5,12 +5,17 @@ namespace ToDoAppBackend;
 [ApiController]
 public class GetTodoController : ControllerBase
 {
-    private readonly FileSaver _fileSaver = new FileSaver();
+    private readonly IDataSaver _dataSaver;
+
+    public GetTodoController(IDataSaver dataSaver)
+    {
+        _dataSaver = dataSaver;
+    }
     
     [HttpGet("todo/{id:int?}")]
     public IEnumerable<ToDoItem> Get(int? id = null)
     {
-        return _fileSaver.Get(id == null ? null : id.ToString());
+        return _dataSaver.Get(id == null ? null : id.ToString());
     }
 }
 
