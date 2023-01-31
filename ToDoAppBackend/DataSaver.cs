@@ -1,8 +1,7 @@
-using ToDoAppBackend;
 
+namespace ToDoAppBackend;
 interface IDataSaver
 {
-    List<ToDoItem> Get();
     List<ToDoItem> Get(string? id);
     ToDoItem Create(ToDoItemBase toDo);
     // ToDoItem Update(ToDoItem toDo);

@@ -8,11 +8,9 @@ public class GetTodoController : ControllerBase
     private readonly FileSaver _fileSaver = new FileSaver();
     
     [HttpGet("todo/{id:int?}")]
-    public IEnumerable<ToDoItem> Get(int? id)
+    public IEnumerable<ToDoItem> Get(int? id = null)
     {
-        var data = id != null ? _fileSaver.Get(id.ToString()) : _fileSaver.Get();
-
-        return data;
+        return _fileSaver.Get(id == null ? null : id.ToString());
     }
 }
 

@@ -5,44 +5,45 @@ namespace ToDoAppBackend;
 public class FileSaver : IDataSaver
 {
     private readonly string _path = Path.Combine(Environment.CurrentDirectory, @"data/");
-    
-    public List<ToDoItem> Get()
+
+    private FileInfo[] GetAllDataFiles()
     {
         var directory = new DirectoryInfo(_path);
-        var files = directory.GetFiles();
-    
-        var toDos = new List<ToDoItem>();
-    
-        foreach (var file in files)
-        {
-            StreamReader sr = File.OpenText(file.FullName);
-            var fileData = sr.ReadToEnd();
-            var deserialised = JsonSerializer.Deserialize<ToDoItem>(fileData);
-            toDos.Add(deserialised);
-        }
-    
-        return toDos;
+        return directory.GetFiles();
     }
-    
+    private ToDoItem GetToDoFromFile(string fileName)
+    {
+        StreamReader sr = File.OpenText(fileName);
+        var fileData = sr.ReadToEnd();
+        sr.Close();
+        var toDo = JsonSerializer.Deserialize<ToDoItem>(fileData);
+        if (toDo == null)
+        {
+            throw new ArgumentNullException(fileName);
+        }
+        return toDo;
+    }
+
     public List<ToDoItem> Get(string? id)
     {
-        var directory = new DirectoryInfo(_path);
-        var files = directory.GetFiles();
+        var files = GetAllDataFiles();
+
+        if (id == null)
+        {
+            return files.Select(file => GetToDoFromFile(file.FullName)).ToList();
+        }
 
         var file = files.First(item => item.Name == id + ".json");
 
-        StreamReader sr = File.OpenText(file.FullName);
-        var fileData = sr.ReadToEnd();
-        var deserialised = JsonSerializer.Deserialize<ToDoItem>(fileData);
-        var dataToReturn = new List<ToDoItem>();
-        dataToReturn.Add(deserialised);
-        return dataToReturn;
+        return new List<ToDoItem>()
+        {
+            GetToDoFromFile(file.FullName)
+        };
     }
 
     public ToDoItem Create(ToDoItemBase data)
     {
-        var directory = new DirectoryInfo(_path);
-        var files = directory.GetFiles();
+        var files = GetAllDataFiles();
         
         var newId = files.Length;
         
