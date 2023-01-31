@@ -23,6 +23,15 @@ public class FileSaver : IDataSaver
         }
         return toDo;
     }
+    
+    private void WriteToFile(ToDoItem toDoItem)
+    {
+        var file = new FileInfo(_path + toDoItem.id + ".json");
+        FileStream fs = file.Exists ? file.Open(FileMode.Truncate) : file.Create();
+        byte[] fileData = new UTF8Encoding(true).GetBytes(JsonSerializer.Serialize(toDoItem));
+        fs.Write(fileData, 0, fileData.Length);
+        fs.Close();
+    }
 
     public List<ToDoItem> Get(string? id)
     {
@@ -46,12 +55,6 @@ public class FileSaver : IDataSaver
         var files = GetAllDataFiles();
         
         var newId = files.Length;
-        
-        var file = new FileInfo(_path + newId + ".json");
-        if (file.Exists)
-        {
-            throw new Exception("Already exists");
-        }
 
         var newToDo = new ToDoItem()
         {
@@ -61,26 +64,30 @@ public class FileSaver : IDataSaver
             Status = data.Status,
         };
         
-        FileStream fs = file.Create();
-        byte[] fileData = new UTF8Encoding(true).GetBytes(JsonSerializer.Serialize(newToDo));
-        fs.Write(fileData, 0, fileData.Length);
-        fs.Close();
+        try
+        {
+            WriteToFile(newToDo);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw;
+        }
 
         return newToDo;
     }
 
     public ToDoItem Update(ToDoItem toDoItem)
     {
-        var file = new FileInfo(_path + toDoItem.id + ".json");
-        if (!file.Exists)
+        try
         {
-            throw new Exception("File does not exist");
+            WriteToFile(toDoItem);
         }
-
-        FileStream fs = file.Open(FileMode.Truncate);
-        byte[] fileData = new UTF8Encoding(true).GetBytes(JsonSerializer.Serialize(toDoItem));
-        fs.Write(fileData, 0, fileData.Length);
-        fs.Close();
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw;
+        }
 
         return toDoItem;
     }
