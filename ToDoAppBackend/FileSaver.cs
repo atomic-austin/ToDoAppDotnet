@@ -91,4 +91,20 @@ public class FileSaver : IDataSaver
 
         return toDoItem;
     }
+
+    public string Delete(string id)
+    {
+        var file = new FileInfo(_path + id + ".json");
+        try
+        {
+            file.Delete();
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw;
+        }
+
+        return id;
+    }
 }
