@@ -68,4 +68,20 @@ public class FileSaver : IDataSaver
 
         return newToDo;
     }
+
+    public ToDoItem Update(ToDoItem toDoItem)
+    {
+        var file = new FileInfo(_path + toDoItem.id + ".json");
+        if (!file.Exists)
+        {
+            throw new Exception("File does not exist");
+        }
+
+        FileStream fs = file.Open(FileMode.Truncate);
+        byte[] fileData = new UTF8Encoding(true).GetBytes(JsonSerializer.Serialize(toDoItem));
+        fs.Write(fileData, 0, fileData.Length);
+        fs.Close();
+
+        return toDoItem;
+    }
 }
