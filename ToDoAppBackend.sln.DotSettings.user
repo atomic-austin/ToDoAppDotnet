@@ -3,5 +3,6 @@
   &lt;TestAncestor&gt;
     &lt;TestId&gt;NUnit3x::A3E3C961-C0F8-4EBB-BB57-2B2D3021F979::net6.0::ToDoAppBackendTests.ApiTests&lt;/TestId&gt;
     &lt;TestId&gt;NUnit3x::A3E3C961-C0F8-4EBB-BB57-2B2D3021F979::net6.0::ToDoAppBackendTests.Tests&lt;/TestId&gt;
+    &lt;TestId&gt;xUnit::9836B6DE-ACCE-4049-AACC-4D5EF3989D5C::net6.0::ToDoApiTests.ApiTests&lt;/TestId&gt;
   &lt;/TestAncestor&gt;
 &lt;/SessionState&gt;</s:String></wpf:ResourceDictionary>
