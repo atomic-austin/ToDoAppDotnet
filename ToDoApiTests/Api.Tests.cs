@@ -10,9 +10,9 @@ public class ApiTests
     {
         var mockDataSaver = Substitute.For<IDataSaver>();
         var controller = new GetTodoController(mockDataSaver);
-        controller.Get();
-        mockDataSaver.Received().Get(null);
-        mockDataSaver.DidNotReceive().Create(new ToDoItemBase());
+        controller.GetAll();
+        mockDataSaver.Received().GetAll();
+        mockDataSaver.DidNotReceive().Create(new ToDoItem());
         mockDataSaver.DidNotReceive().Update(new ToDoItem());
         mockDataSaver.DidNotReceive().Delete("");
     }

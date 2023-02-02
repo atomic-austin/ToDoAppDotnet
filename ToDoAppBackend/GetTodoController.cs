@@ -12,10 +12,16 @@ public class GetTodoController : ControllerBase
         _dataSaver = dataSaver;
     }
     
-    [HttpGet("todo/{id:int?}")]
-    public IEnumerable<ToDoItem> Get(int? id = null)
+    [HttpGet("todo/{id}")]
+    public ToDoItem Get(string id)
     {
-        return _dataSaver.Get(id == null ? null : id.ToString());
+        return _dataSaver.Get(id);
+    }
+    
+    [HttpGet("todo/")]
+    public IReadOnlyList<ToDoItem> GetAll()
+    {
+        return _dataSaver.GetAll();
     }
 }
 

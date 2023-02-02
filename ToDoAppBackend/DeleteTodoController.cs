@@ -12,10 +12,10 @@ public class DeleteTodoController : ControllerBase
         _dataSaver = dataSaver;
     }
     
-    [HttpDelete("todo/{id:int}")]
-    public string Delete(int id)
+    [HttpDelete("todo/{id}")]
+    public string Delete(string id)
     {
-        return _dataSaver.Delete(id.ToString());
+        return _dataSaver.Delete(id);
     }
 }
 

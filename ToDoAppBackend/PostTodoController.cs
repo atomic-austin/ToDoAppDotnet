@@ -13,7 +13,7 @@ public class PostTodoController : ControllerBase
     }
     
     [HttpPost("todo")]
-    public ToDoItem Post(ToDoItemBase data)
+    public ToDoItem Post(ToDoItem data)
     {
         var newToDo = _dataSaver.Create(data);
 

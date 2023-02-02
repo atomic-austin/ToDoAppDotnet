@@ -33,25 +33,27 @@ public class FileSaver : IDataSaver
         fs.Close();
     }
 
-    public List<ToDoItem> Get(string? id)
+    public ToDoItem Get(string id)
     {
         var files = GetAllDataFiles();
 
-        if (id == null)
-        {
-            return files.Select(file => GetToDoFromFile(file.FullName)).ToList();
-        }
-
         var file = files.First(item => item.Name == id + ".json");
 
-        return new List<ToDoItem>()
-        {
-            GetToDoFromFile(file.FullName)
-        };
+        return GetToDoFromFile(file.FullName);
     }
 
-    public ToDoItem Create(ToDoItemBase data)
+    public IReadOnlyList<ToDoItem> GetAll()
     {
+        var files = GetAllDataFiles();
+        return files.Select(file => GetToDoFromFile(file.FullName)).ToList();
+    }
+
+    public ToDoItem Create(ToDoItem data)
+    {
+        if (data.id != null)
+        {
+            throw new ArgumentException("Id must be null when creating a new todo");
+        }
         var files = GetAllDataFiles();
         
         var newId = files.Length;
