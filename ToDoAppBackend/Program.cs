@@ -9,7 +9,7 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-builder.Services.AddScoped<IDataSaver, FileSaver>();
+builder.Services.AddScoped<IDataSaver, MongoDbSaver>();
 
 var app = builder.Build();
 
