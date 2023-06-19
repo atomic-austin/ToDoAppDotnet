@@ -13,9 +13,9 @@ public class PutTodoController : ControllerBase
     }
     
     [HttpPut("todo")]
-    public ToDoItem Put(ToDoItem data)
+    public async Task<ToDoItem> Put(ToDoItem data)
     {
-        var updatedToDo = _dataSaver.Update(data);
+        var updatedToDo = await _dataSaver.Update(data);
 
         return updatedToDo;
     }

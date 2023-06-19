@@ -24,12 +24,12 @@ public class FileSaver : IDataSaver
         return toDo;
     }
     
-    private void WriteToFile(ToDoItem toDoItem)
+    private async Task WriteToFile(ToDoItem toDoItem)
     {
         var file = new FileInfo(_path + toDoItem.id + ".json");
         FileStream fs = file.Exists ? file.Open(FileMode.Truncate) : file.Create();
         byte[] fileData = new UTF8Encoding(true).GetBytes(JsonSerializer.Serialize(toDoItem));
-        fs.Write(fileData, 0, fileData.Length);
+        await fs.WriteAsync(fileData, 0, fileData.Length);
         fs.Close();
     }
 
@@ -79,11 +79,11 @@ public class FileSaver : IDataSaver
         return newToDo;
     }
 
-    public ToDoItem Update(ToDoItem toDoItem)
+    public async Task<ToDoItem> Update(ToDoItem toDoItem)
     {
         try
         {
-            WriteToFile(toDoItem);
+            await WriteToFile(toDoItem);
         }
         catch (Exception e)
         {
