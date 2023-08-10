@@ -116,6 +116,6 @@ public class MongoDbSaver : IDataSaver
 
     public string Delete(string id)
     {
-        return "TBD";
+        throw new NotImplementedException("TODO: Implement Delete");
     }
 }
