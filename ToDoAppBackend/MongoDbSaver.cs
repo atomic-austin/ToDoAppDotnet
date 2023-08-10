@@ -20,12 +20,22 @@ public class MongoDbSaver : IDataSaver
     {
         if (replacementToDo.id == null)
         {
-            throw new Exception("Cannot replace a todo without an id");
+            throw new ArgumentException("Cannot replace a todo without an id");
+        }
+        
+        ObjectId id;
+        try
+        {
+            id = new ObjectId(replacementToDo.id);
+        }
+        catch (FormatException e)
+        {
+            throw new ArgumentException("Invalid ID format.", e);
         }
 
         var mongoReplacementTodo = new MongoDbToDoItem
         {
-            _id = new ObjectId(replacementToDo.id),
+            _id = id,
             Title = replacementToDo.Title,
             Desc = replacementToDo.Desc,
             Status = replacementToDo.Status,
