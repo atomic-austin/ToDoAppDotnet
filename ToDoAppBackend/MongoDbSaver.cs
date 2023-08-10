@@ -47,7 +47,7 @@ public class MongoDbSaver : IDataSaver
         {
             return mongoReplacementTodo;
         }
-        throw new Exception("Could not replace todo");
+        throw new InvalidOperationException("Could not replace todo");
     }
 
     public MongoDbSaver()
@@ -57,7 +57,7 @@ public class MongoDbSaver : IDataSaver
 
         var db = client.GetDatabase("ToDoDb");
 
-        _db = db ?? throw new Exception("Could not find or create the db");
+        _db = db ?? throw new InvalidOperationException("Could not find or create the db");
     }
 
     public ToDoItem Get(string id)
