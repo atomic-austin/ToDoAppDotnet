@@ -1,11 +1,13 @@
 using NSubstitute;
+using NUnit.Framework;
 using ToDoAppBackend;
 
 namespace ToDoApiTests;
 
+[TestFixture]
 public class ApiTests
 {
-    [Fact]
+    [Test]
     public void GetControllerTest()
     {
         var mockDataSaver = Substitute.For<IDataSaver>();
