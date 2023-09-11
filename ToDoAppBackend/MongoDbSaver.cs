@@ -116,6 +116,14 @@ public class MongoDbSaver : IDataSaver
 
     public string Delete(string id)
     {
-        throw new NotImplementedException("TODO: Implement Delete");
+        var deleteResult = GetToDoCollection().DeleteOne(x => x._id == new ObjectId(id));
+        if (deleteResult.DeletedCount == 1)
+        {
+            return id;
+        }
+        else
+        {
+            throw new InvalidOperationException("Could not delete todo");
+        }
     }
 }
