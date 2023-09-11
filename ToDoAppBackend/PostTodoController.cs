@@ -1,3 +1,4 @@
+using System.Net;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ToDoAppBackend;
@@ -13,9 +14,14 @@ public class PostTodoController : ControllerBase
     }
     
     [HttpPost("todo")]
-    public ToDoItem Post(ToDoItem data)
+    [ProducesResponseType((int) HttpStatusCode.BadRequest)]
+    public async Task<ActionResult<ToDoItem>> Post(ToDoItem data)
     {
-        var newToDo = _dataSaver.Create(data);
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+        var newToDo = await _dataSaver.Create(data);
 
         return newToDo;
     }

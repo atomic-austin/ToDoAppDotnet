@@ -3,7 +3,7 @@ using MongoDB.Bson;
 
 namespace ToDoAppBackend;
 
-public class MongoDbToDoItem : ToDoItemData
+public class MongoDbToDoItem : ToDoItem
 {
     public ObjectId _id { get; set; }
 }
@@ -38,7 +38,7 @@ public class MongoDbSaver : IDataSaver
             _id = id,
             Title = replacementToDo.Title,
             Desc = replacementToDo.Desc,
-            Status = replacementToDo.Status,
+            Status = replacementToDo.Status ?? ToDoItemStatus.ToDo,
         };
         var collection = _db.GetCollection<MongoDbToDoItem>("todos");
         var filter = Builders<MongoDbToDoItem>.Filter.Eq(doc => doc._id, mongoReplacementTodo._id);
@@ -60,13 +60,19 @@ public class MongoDbSaver : IDataSaver
         _db = db ?? throw new InvalidOperationException("Could not find or create the db");
     }
 
-    public ToDoItem Get(string id)
+    public async Task<ToDoItem> Get(string id)
     {
-        return new ToDoItem();
+        var objectId = new ObjectId(id);
+        return await GetToDoCollection()
+            .Find(x => x._id == objectId)
+            .FirstOrDefaultAsync();
     }
-    public IReadOnlyList<ToDoItem> GetAll()
+    public async Task<IReadOnlyList<ToDoItem>> GetAll()
     {
-        var mongoToDoItems = GetToDoCollection().Find(_ => true).ToList();
+        var mongoToDoItems = await GetToDoCollection()
+            .FindAsync(x => true)
+            .Result
+            .ToListAsync();
         var listToReturn = new List<ToDoItem>();
         foreach (var mongoToDoItem in mongoToDoItems)
         {
@@ -82,22 +88,22 @@ public class MongoDbSaver : IDataSaver
         return listToReturn;
     }
 
-    public ToDoItem Create(ToDoItem toDo)
+    public async Task<ToDoItem> Create(ToDoItem toDo)
     {
         var newToDo = new MongoDbToDoItem()
         {
             Title = toDo.Title,
-            Desc = "blah",
-            Status = 0
+            Desc = toDo.Desc,
+            Status = toDo.Status ?? ToDoItemStatus.ToDo,
         };
-        GetToDoCollection().InsertOne(newToDo);
+        await GetToDoCollection().InsertOneAsync(newToDo);
 
         var returnToDo = new ToDoItem()
         {
             id = newToDo._id.ToString(),
             Title = newToDo.Title,
             Desc = newToDo.Desc,
-            Status = ToDoItemStatus.ToDo,
+            Status = newToDo.Status,
         };
         return returnToDo;
     }
@@ -114,9 +120,9 @@ public class MongoDbSaver : IDataSaver
         };
     }
 
-    public string Delete(string id)
+    public async Task<string> Delete(string id)
     {
-        var deleteResult = GetToDoCollection().DeleteOne(x => x._id == new ObjectId(id));
+        var deleteResult = await GetToDoCollection().DeleteOneAsync(x => x._id == new ObjectId(id));
         if (deleteResult.DeletedCount == 1)
         {
             return id;

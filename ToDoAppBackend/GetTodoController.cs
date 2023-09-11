@@ -13,15 +13,15 @@ public class GetTodoController : ControllerBase
     }
     
     [HttpGet("todo/{id}")]
-    public ToDoItem Get(string id)
+    public async Task<ToDoItem> Get(string id)
     {
-        return _dataSaver.Get(id);
+        return await _dataSaver.Get(id);
     }
     
     [HttpGet("todo/")]
-    public IReadOnlyList<ToDoItem> GetAll()
+    public async Task<IReadOnlyList<ToDoItem>> GetAll()
     {
-        return _dataSaver.GetAll();
+        return await _dataSaver.GetAll();
     }
 }
 

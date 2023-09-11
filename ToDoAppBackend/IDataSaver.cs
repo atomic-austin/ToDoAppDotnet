@@ -2,9 +2,9 @@
 namespace ToDoAppBackend;
 public interface IDataSaver
 {
-    IReadOnlyList<ToDoItem> GetAll();
-    ToDoItem Get(string id);
-    ToDoItem Create(ToDoItem toDo);
+    Task<IReadOnlyList<ToDoItem>> GetAll();
+    Task<ToDoItem> Get(string id);
+    Task<ToDoItem> Create(ToDoItem toDo);
     Task<ToDoItem> Update(ToDoItem toDo);
-    string Delete(string id);
+    Task<string> Delete(string id);
 }

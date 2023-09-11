@@ -11,18 +11,18 @@ public class FileSaver : IDataSaver
         var directory = new DirectoryInfo(_path);
         return directory.GetFiles();
     }
-    private ToDoItem GetToDoFromFile(string fileName)
+    private static async Task<ToDoItem> GetToDoFromFile(string fileName)
     {
-        StreamReader sr = File.OpenText(fileName);
-        var fileData = sr.ReadToEnd();
-        sr.Close();
+        using var sr = new StreamReader(fileName);
+        var fileData = await sr.ReadToEndAsync();
         var toDo = JsonSerializer.Deserialize<ToDoItem>(fileData);
         if (toDo == null)
         {
-            throw new ArgumentNullException(fileName);
+            throw new ArgumentNullException(nameof(fileName), "Deserialized object is null.");
         }
         return toDo;
     }
+
     
     private async Task WriteToFile(ToDoItem toDoItem)
     {
@@ -33,22 +33,24 @@ public class FileSaver : IDataSaver
         fs.Close();
     }
 
-    public ToDoItem Get(string id)
+    public async Task<ToDoItem> Get(string id)
     {
         var files = GetAllDataFiles();
 
         var file = files.First(item => item.Name == id + ".json");
 
-        return GetToDoFromFile(file.FullName);
+        return await GetToDoFromFile(file.FullName);
     }
 
-    public IReadOnlyList<ToDoItem> GetAll()
+    public async Task<IReadOnlyList<ToDoItem>> GetAll()
     {
         var files = GetAllDataFiles();
-        return files.Select(file => GetToDoFromFile(file.FullName)).ToList();
+        var tasks = files.Select(async file => await GetToDoFromFile(file.FullName));
+        var results = await Task.WhenAll(tasks);
+        return results.ToList();
     }
 
-    public ToDoItem Create(ToDoItem data)
+    public async Task<ToDoItem> Create(ToDoItem data)
     {
         if (data.id != null)
         {
@@ -68,7 +70,7 @@ public class FileSaver : IDataSaver
         
         try
         {
-            WriteToFile(newToDo);
+            await WriteToFile(newToDo);
         }
         catch (Exception e)
         {
@@ -94,12 +96,12 @@ public class FileSaver : IDataSaver
         return toDoItem;
     }
 
-    public string Delete(string id)
+    public async Task<string> Delete(string id)
     {
-        var file = new FileInfo(_path + id + ".json");
+        var path = _path + id + ".json";
         try
         {
-            file.Delete();
+            await Task.Run(() => File.Delete(path));
         }
         catch (Exception e)
         {

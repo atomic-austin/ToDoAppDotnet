@@ -13,9 +13,9 @@ public class DeleteTodoController : ControllerBase
     }
     
     [HttpDelete("todo/{id}")]
-    public string Delete(string id)
+    public async Task<string> Delete(string id)
     {
-        return _dataSaver.Delete(id);
+        return await _dataSaver.Delete(id);
     }
 }
 
