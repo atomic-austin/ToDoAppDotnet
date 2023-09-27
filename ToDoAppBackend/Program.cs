@@ -1,6 +1,16 @@
+using Autofac;
+using Autofac.Extensions.DependencyInjection;
 using ToDoAppBackend;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Host.UseServiceProviderFactory(new AutofacServiceProviderFactory());
+builder.Host.ConfigureContainer<ContainerBuilder>(autofacContainerBuilder =>
+{
+    autofacContainerBuilder.RegisterModule<AutofacModule>();
+});
+
+builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
 // Add services to the container.
 
@@ -8,8 +18,6 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-
-builder.Services.AddScoped<IDataSaver, MongoDbSaver>();
 
 var app = builder.Build();
 

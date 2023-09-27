@@ -1,34 +1,49 @@
 using System.Text;
 using System.Text.Json;
+using AutoMapper;
 
 namespace ToDoAppBackend;
 public class FileSaver : IDataSaver
 {
+    private readonly IMapper _mapper;
     private readonly string _path = Path.Combine(Environment.CurrentDirectory, @"data/");
 
+    public FileSaver(IMapper mapper)
+    {
+        _mapper = mapper;
+        CreateDirectoryIfNotExists();
+    }
+    
+    private void CreateDirectoryIfNotExists()
+    {
+        if (!Directory.Exists(_path))
+        {
+            Directory.CreateDirectory(_path);
+        }
+    }
     private FileInfo[] GetAllDataFiles()
     {
         var directory = new DirectoryInfo(_path);
         return directory.GetFiles();
     }
-    private static async Task<ToDoItem> GetToDoFromFile(string fileName)
+    private static async Task<FileSaverToDoItem> GetToDoFromFile(string fileName)
     {
         using var sr = new StreamReader(fileName);
         var fileData = await sr.ReadToEndAsync();
-        var toDo = JsonSerializer.Deserialize<ToDoItem>(fileData);
+        var toDo = JsonSerializer.Deserialize<FileSaverToDoItem>(fileData);
         if (toDo == null)
         {
             throw new ArgumentNullException(nameof(fileName), "Deserialized object is null.");
         }
         return toDo;
     }
-
     
     private async Task WriteToFile(ToDoItem toDoItem)
     {
-        var file = new FileInfo(_path + toDoItem.id + ".json");
+        var toDo = _mapper.Map<FileSaverToDoItem>(toDoItem);
+        var file = new FileInfo(_path + toDo.id + ".json");
         FileStream fs = file.Exists ? file.Open(FileMode.Truncate) : file.Create();
-        byte[] fileData = new UTF8Encoding(true).GetBytes(JsonSerializer.Serialize(toDoItem));
+        byte[] fileData = new UTF8Encoding(true).GetBytes(JsonSerializer.Serialize(toDo));
         await fs.WriteAsync(fileData, 0, fileData.Length);
         fs.Close();
     }
@@ -38,8 +53,8 @@ public class FileSaver : IDataSaver
         var files = GetAllDataFiles();
 
         var file = files.First(item => item.Name == id + ".json");
-
-        return await GetToDoFromFile(file.FullName);
+        var toDo = await GetToDoFromFile(file.FullName);
+        return _mapper.Map<ToDoItem>(toDo);
     }
 
     public async Task<IReadOnlyList<ToDoItem>> GetAll()
@@ -47,12 +62,12 @@ public class FileSaver : IDataSaver
         var files = GetAllDataFiles();
         var tasks = files.Select(async file => await GetToDoFromFile(file.FullName));
         var results = await Task.WhenAll(tasks);
-        return results.ToList();
+        return _mapper.Map<IReadOnlyList<ToDoItem>>(results);
     }
 
-    public async Task<ToDoItem> Create(ToDoItem data)
+    public async Task<ToDoItem> Create(ToDoItem newToDoData)
     {
-        if (data.id != null)
+        if (newToDoData.Id != null)
         {
             throw new ArgumentException("Id must be null when creating a new todo");
         }
@@ -60,25 +75,19 @@ public class FileSaver : IDataSaver
         
         var newId = files.Length;
 
-        var newToDo = new ToDoItem()
-        {
-            id = newId.ToString(),
-            Title = data.Title,
-            Desc = data.Desc,
-            Status = data.Status,
-        };
+        newToDoData.Id ??= newId.ToString();
         
         try
         {
-            await WriteToFile(newToDo);
+            await WriteToFile(newToDoData);
         }
         catch (Exception e)
         {
             Console.WriteLine(e);
-            throw;
+            throw new FileSaverException("Error while writing to file", e);
         }
 
-        return newToDo;
+        return newToDoData;
     }
 
     public async Task<ToDoItem> Update(ToDoItem toDoItem)
@@ -90,7 +99,7 @@ public class FileSaver : IDataSaver
         catch (Exception e)
         {
             Console.WriteLine(e);
-            throw;
+            throw new FileSaverException("Error while updating file", e);
         }
 
         return toDoItem;
@@ -106,7 +115,7 @@ public class FileSaver : IDataSaver
         catch (Exception e)
         {
             Console.WriteLine(e);
-            throw;
+            throw new FileSaverException("Error while deleting file", e);
         }
 
         return id;
